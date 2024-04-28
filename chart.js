@@ -3,7 +3,8 @@ class Chart {
         this.samples = samples;
 
         this.axesLabels = options.axesLabels;
-        this.style = options.style;
+        this.styles = options.styles;
+        this.icon = options.icon;
 
         this.canvas = document.createElement("canvas");
         this.canvas.width = options.size;
@@ -14,7 +15,7 @@ class Chart {
         this.ctx = this.canvas.getContext("2d");
 
         this.margin = options.size * 0.1;
-        this.transparency = 0.5;
+        this.transparency = 0.7;
 
         this.dataTrans = {
             offset: [0, 0],
@@ -266,11 +267,30 @@ class Chart {
     #drawSamples() {
         const { ctx, samples, dataBounds, pixelBounds } = this;
         for (const sample of samples) {
-            const { point } = sample;
+            const { point, label } = sample;
             const pixelLoc = math.remapPoint(
                 dataBounds, pixelBounds, point
             );
-            graphics.drawPoint(ctx, pixelLoc);
+            switch (this.icon) {
+                case "image":
+                    graphics.drawImage(
+                        ctx,
+                        this.styles[label].image,
+                        pixelLoc
+                    );
+                    break;
+                case "text":
+                    graphics.drawText(ctx, {
+                        text: this.styles[label].text,
+                        loc: pixelLoc,
+                        size: 20
+                    });
+                    break;
+                default:
+                    graphics.drawPoint(ctx, pixelLoc,
+                        this.styles[label].color);
+                    break;
+            }
         }
     }
 }
